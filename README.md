@@ -16,3 +16,12 @@ Instead of using a GUI the program will run from the command line. When executin
        that have occurred on the account. Multiple worker threads may be accessing an account simultaneously and 
        we must ensure that they cannot corrupt its data. We will also override the toString method to handle 
        printing of account information.
+       
+ - ###### Transaction Class
+       This is a simple class that stores information on each transaction. If you’re careful you can treat the 
+       Transaction as immutable. This means that you do not have to worry about multiple threads accessing it. 
+       Remember an immutable object’s values never change, therefore its values are not subject to corruption 
+       in a concurrent environment.
+       
+ - ###### Bank Class
+       Bank class maintains a list of accounts and the Java BlockingQueue 
