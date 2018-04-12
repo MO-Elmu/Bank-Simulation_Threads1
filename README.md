@@ -34,3 +34,18 @@ Instead of using a GUI the program will run from the command line. When executin
        transaction they should process it. If the queue is empty, they will wait for the Bank class to read 
        in another transaction (we got this behavior for free by using a BlockingQueue). Workers terminate 
        when all the transactions have been processed. 
+
+
+#### File Format
+Each line in the external file represents a single transaction, and contains three numbers: the id of the account from which the money is being transferred, the id of the account to which the money is going, and the amount of money. For example the line: 17 6 104
+indicates that $104 is being transferred from Account #17 to Account #6.
+
+#### Communication Mechanisms
+Our blocking queue is the primary means of communicating between worker threads and the main bank thread. Worker threads requesting transactions from the queue will automatically block if the queue is empty, and will wait for the bank thread to add additional transactions. Similarly if the queue is full, the bank thread will automatically block until a worker thread takes a transaction out of the queue, making space to put the next transaction into. You can use a variety of classes to implement the blocking queue (remember BlockingQueue itself is an interface not a class)—the ArrayBlockingQueue will work fine for our purposes. Your program should work correctly regardless of the size of the BlockingQueue. So feel free to set it to any reasonable size. We should be able to change the size of the queue to any positive integer for grading and your program should continue to work correctly.
+Be sure to use the put and take blocking methods, not the add and remove methods.
+We need a way of communicating to the Worker threads when the main thread has finished loading all the transactions into the queue. Since the Worker threads are already getting information from the queue, one easy way to do this is to put a special value into the queue, indicating the main thread is done loading transactions. We can’t use null because the BlockingQueue already uses null as a special value for its own communication purposes. Instead you can create a special transaction—something like this: 
+
+> private final Transaction nullTrans = new Transaction(-1,0,0);
+
+When your main thread is done reading in all the transactions, it places a series of nullTrans references into the queue. When the worker thread pulls a nullTrans out of the queue it knows that all the real transactions are done and it can terminate. Remember that the worker threads are actually removing these references from the queue, so you’ll need to add one per worker thread.
+You’ll also need a way for the worker threads to let the main thread know when they are done. The main thread can’t print out all the account balances until it’s sure that all transactions have not only been entered in the queue but actually been processed. One easy way to do this is with a CountDownLatch.
