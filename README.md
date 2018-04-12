@@ -24,4 +24,13 @@ Instead of using a GUI the program will run from the command line. When executin
        in a concurrent environment.
        
  - ###### Bank Class
-       Bank class maintains a list of accounts and the Java BlockingQueue 
+       Bank class maintains a list of accounts and the Java BlockingQueue is used to communicate between the 
+       main thread and the worker threads. The Bank is also responsible for starting up the worker threads, 
+       reading transactions from the file, and printing out all the account values when everything is done.
+       
+ - ###### Worker Class
+       Worker class is an inner class of the Bank class. This way it gets easy access to the list of accounts
+       and the queue used for communication. Workers should check the queue for transactions. If they find a 
+       transaction they should process it. If the queue is empty, they will wait for the Bank class to read 
+       in another transaction (we got this behavior for free by using a BlockingQueue). Workers terminate 
+       when all the transactions have been processed. 
